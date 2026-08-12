@@ -49,7 +49,7 @@ db: asyncpg.Pool = None
 http_client: httpx.AsyncClient = None
 
 
-# --- db helpers ---
+# db helpers
 
 async def get_rank(user_id: int) -> str | None:
     if user_id in FOUNDER_IDS:
@@ -102,7 +102,7 @@ async def get_info_uses() -> int:
     return row["value"] if row else 0
 
 
-# --- component helpers ---
+# component helpers
 
 async def send_components(ctx, payload):
     await ctx.message.delete()
@@ -125,7 +125,7 @@ def component_msg(lines: list[dict]) -> dict:
     }
 
 
-# --- oauth2 web server ---
+# oauth2 web server
 
 async def oauth_callback(request: web.Request) -> web.Response:
     code = request.rel_url.query.get("code")
@@ -182,7 +182,7 @@ async def start_webserver():
     print(f"Web server running on port {PORT}")
 
 
-# --- bot events ---
+# bot events
 
 TARGET_GUILD_ID = 1523884556091134083
 
@@ -303,7 +303,7 @@ async def info_error(ctx, error):
         await ctx.send(f"Cooldown — try again in `{error.retry_after:.1f}s`.", delete_after=4)
 
 
-# --- hardban ---
+# hardban
 
 async def has_full_access(ctx) -> bool:
     if ctx.author.id in FOUNDER_IDS:
@@ -432,7 +432,7 @@ async def on_member_unban(guild, user):
     await guild.ban(user, reason="hardbanned")
 
 
-# --- whitelist management ---
+# whitelist management
 
 @bot.command(name="addrank")
 async def addrank(ctx, member: discord.Member, rank: str):
@@ -554,7 +554,7 @@ async def whitelist(ctx):
         await session.post(url, headers=headers, json=whitelist_payload("founder", body))
 
 
-# --- utility ---
+# utility
 
 @bot.command(name="invite")
 async def invite(ctx):
@@ -633,7 +633,7 @@ async def shutdown(ctx):
     await bot.close()
 
 
-# --- guild restore ---
+# guild restore
 
 @bot.command(name="restoreguild")
 async def restore_guild(ctx):
@@ -747,7 +747,7 @@ async def pull(ctx, target_guild_id: int = None):
         await session.post(url, headers={"Authorization": f"Bot {TOKEN}", "Content-Type": "application/json"}, json=payload)
 
 
-# --- raid db helpers ---
+# raid db helpers
 
 async def get_raid_config(key: str) -> int | None:
     row = await db.fetchrow("SELECT value FROM raid_config WHERE key = $1", key)
@@ -1048,7 +1048,7 @@ async def slash_leaderboard(interaction: discord.Interaction, debug: bool = Fals
     await interaction.followup.send("Done.", ephemeral=True)
 
 
-# --- raid config prefix commands ---
+# raid config prefix commands
 
 @bot.command(name="rl")
 async def set_log_channel(ctx, channel: discord.TextChannel = None):
@@ -1099,7 +1099,7 @@ async def r_error(ctx, error):
         await ctx.send("Invalid role ID. Usage: `!r <role_id>`", delete_after=4)
 
 
-# --- roblox profile commands ---
+# roblox profile commands
 
 async def roblox_get(session: aiohttp.ClientSession, url: str) -> dict:
     async with session.get(url, headers={"Accept": "application/json"}) as r:
@@ -1300,7 +1300,7 @@ async def cleardb(ctx, option: str = None):
     await send_components(ctx, payload)
 
 
-# --- staff help ---
+# staff help
 
 STAFF_HELP_CONTENT = """**Command Reference**
 
@@ -1405,7 +1405,7 @@ async def staffhelp(ctx):
         await session.post(url, headers=headers, json=payload)
 
 
-# --- word filter commands ---
+# word filter commands
 
 @bot.command(name="fa")
 async def filter_add(ctx, *, word: str = None):
@@ -1438,7 +1438,7 @@ async def filter_remove(ctx, *, word: str = None):
         await ctx.channel.send("Word not in filter.", delete_after=4)
 
 
-# --- ai image filter ---
+# ai image filter
 
 async def check_image_nsfw(image_url: str) -> bool:
     if not NAVY_API_KEY:
@@ -1554,7 +1554,7 @@ async def scan_message(message: discord.Message) -> bool:
     if message.author.bot:
         return False
 
-    # --- word filter ---
+    # word filter
     if message.content:
         filtered_words = await get_filtered_words()
         matched = contains_filtered_word(message.content, filtered_words)
@@ -1572,7 +1572,7 @@ async def scan_message(message: discord.Message) -> bool:
                 pass
             return True
 
-    # --- image filter ---
+    # image filter
     if db is None:
         return False
     image_filter_on = await get_raid_config("image_filter_enabled")
